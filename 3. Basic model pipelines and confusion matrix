@@ -1,0 +1,86 @@
+#I have taken 4 models into consideration
+
+#Naive Bayes
+nb_pipeline = Pipeline([
+        ('NBCV',countV),
+        ('nb_clf',MultinomialNB())])
+train_news.fillna('false', inplace=True)
+nb_pipeline.fit(train_news['news'],train_news['label'])
+predicted_nb = nb_pipeline.predict(test_news['news'])
+np.mean(predicted_nb == test_news['label'])
+
+#Logistic Regression
+logR_pipeline = Pipeline([
+        ('LogRCV',countV),
+        ('LogR_clf',LogisticRegression(max_iter=2000))
+        ])
+
+logR_pipeline.fit(train_news['news'],train_news['label'])
+predicted_LogR = logR_pipeline.predict(test_news['news'])
+np.mean(predicted_LogR == test_news['label'])
+
+#Saclar Vector Machine
+svm_pipeline = Pipeline([
+        ('svmCV',countV),
+        ('svm_clf',svm.LinearSVC(max_iter=2000))
+        ])
+
+svm_pipeline.fit(train_news['news'],train_news['label'])
+predicted_svm = svm_pipeline.predict(test_news['news'])
+np.mean(predicted_svm == test_news['label'])
+
+#Random Forest
+random_forest = Pipeline([
+        ('rfCV',countV),
+        ('rf_clf',RandomForestClassifier(n_estimators=200,n_jobs=3))
+        ])
+    
+random_forest.fit(train_news['news'],train_news['label'])
+predicted_rf = random_forest.predict(test_news['news'])
+np.mean(predicted_rf == test_news['label'])
+
+#Function for generating confusion matrix for each model
+def build_confusion_matrix(classifier):
+    
+    k_fold = KFold(n_splits=9)
+    scores = []
+    confusion = np.array([[0,0],[0,0]])   
+    
+    
+    encoded_column_vector = label_binarize(train_news['label'], classes=['true','false']) 
+    encoded_labels = np.ravel(encoded_column_vector)
+
+    encoded_column_vector = label_binarize(test_news['label'], classes=['true','false'])
+    encoded_labels = np.ravel(encoded_column_vector)     
+    
+    
+#If any nan value if present it's considered as 'false'
+    train_news['label'].fillna('false', inplace=True)
+    test_news['label'].fillna('false', inplace=True)
+    
+
+    for train_ind, test_ind in k_fold.split(train_news):
+        train_text = train_news.iloc[train_ind]['news'] 
+        train_y = train_news.iloc[train_ind]['label']
+
+        test_text = train_news.iloc[test_ind]['news']
+        test_y = train_news.iloc[test_ind]['label']
+        
+        classifier.fit(train_text,train_y)
+        predictions = classifier.predict(test_text)
+
+
+        confusion += confusion_matrix(test_y,predictions)
+        score = f1_score(test_y,predictions,pos_label='true')
+        scores.append(score)
+    
+    return (print('Total statements classified:', len(train_news)),
+    print('Score:', sum(scores)/len(scores)),
+    print('score length', len(scores)),
+    print('Confusion matrix:'),
+    print(confusion))    
+    
+build_confusion_matrix(nb_pipeline)
+build_confusion_matrix(logR_pipeline)
+build_confusion_matrix(svm_pipeline)
+build_confusion_matrix(random_forest)
