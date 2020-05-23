@@ -43,7 +43,7 @@ plot_learing_curve(svm_pipeline_ngram,"SVM Classifier")
 plot_learing_curve(random_forest_ngram,"RandomForest Classifier")
 
 
-#Also after comparing models and their accuracy final best models were Logistic Regression and Scalar Vector Machine
+#Also after comparing models and their accuracy final best models were Logistic Regression and Support Vector Machine
 #So for further comparision I plotted their Precision-Recall Curve (PR-curve)
 
 def plot_PR_curve(classifier):
