@@ -1,4 +1,4 @@
-# **News Detection System**
+# **News Detection System** #
 
 For training the model, dataset used is [Liar, Liar dataset](https://www.cs.ucsb.edu/~william/data/liar_dataset.zip)
 
@@ -49,5 +49,5 @@ For balanced dataset it is better to use ROC curve but for moderately or highly 
 
 
 #### Future work- ####
-- As we know in the times like this the biggest source of hoaxes is whatsApp so to make this project a bit more powerfull we cann connect it with Twilio WhatsApp Sandbox with the help flask app, So that user can directly enter the news in the chat and get result there itself in his/her whatsApp inbox. [*Idea reference*](https://dzone.com/articles/fake-news-foe-machine-learning-and-twilio) 
-- To use this system in times like this one should train the model on dataset related to corona virus news and that's how we can help the society right now by preventing the spread of rumours and verifying them in their initial stages only. I couldn't use required dataset as right now it's not available, only one dataset is available right now that's by [Poynter](https://www.poynter.org/ifcn-covid-19-misinformation/) but it is a multi lingual (40 languages) dataset. So one can use that to train the model also.
+- As we all know the biggest source of hoaxes is whatsApp so to make this project a bit more powerfull we can connect it with Twilio WhatsApp Sandbox with the help of a flask app, So that user can directly enter the news in the chat and get result there itself in his/her whatsApp inbox  [*Idea reference*](https://dzone.com/articles/fake-news-foe-machine-learning-and-twilio) 
+- To use this system in times like this one should train the model on dataset related to corona virus news ( Real and Fake both ) and that's how we can help the society right now by preventing the spread of rumours and verifying them in their initial stages only. I couldn't use required dataset as right now it's not available, only one dataset is available which is provided by [Poynter](https://www.poynter.org/ifcn-covid-19-misinformation/) but it is a multi lingual (40 languages) dataset so I couldnot use it.
