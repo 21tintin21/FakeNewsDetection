@@ -1,0 +1,72 @@
+#GridSearchCV returns training score after exhaustive search over specified parameter values for an estimator
+#It implements a "fit" and a "score" method which are used once the grid search finishes
+#Basically GridSearchCV is used for hyperparameters and their values
+
+#For logistic regression
+parameters = {'LogR_tfidf__ngram_range': [(1, 1), (1, 2),(1,3),(1,4),(1,5)],
+               'LogR_tfidf__use_idf': (True, False),
+               'LogR_tfidf__smooth_idf': (True, False)
+}
+gs_clf = GridSearchCV(logR_pipeline_ngram, parameters, n_jobs=-1)
+gs_clf = gs_clf.fit(train_news['news'][:10000],train_news['label'][:10000])
+gs_clf.best_score_
+gs_clf.best_params_
+gs_clf.cv_results_
+
+
+#For scalar vector machine
+parameters = {'svm_tfidf__ngram_range': [(1, 1), (1, 2),(1,3),(1,4),(1,5)],
+               'svm_tfidf__use_idf': (True, False),
+               'svm_tfidf__smooth_idf': (True, False),
+               'svm_clf__penalty': ('l1','l2'),
+}
+gs_clf = GridSearchCV(svm_pipeline_ngram, parameters, n_jobs=-1)
+gs_clf = gs_clf.fit(train_news['news'][:10000],train_news['label'][:10000])
+gs_clf.best_score_
+gs_clf.best_params_
+gs_clf.cv_results_
+
+
+#For random forest
+parameters = {'rf_tfidf__ngram_range': [(1, 1), (1, 2),(1,3),(1,4),(1,5)],
+               'rf_tfidf__use_idf': (True, False),
+               'rf_clf__max_depth': (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)
+}
+gs_clf = GridSearchCV(random_forest_ngram, parameters)
+gs_clf = gs_clf.fit(train_news['news'][:10000],train_news['label'][:10000])
+gs_clf.best_score_
+gs_clf.best_params_
+gs_clf.cv_results_
+
+
+#Scalar vector machine final model
+svm_final = Pipeline([
+        ('svm_tfidf',TfidfVectorizer(stop_words='english',ngram_range=(1,3),use_idf=True,smooth_idf=True)),
+        ('svm_clf',svm.LinearSVC())
+        ])
+svm_final.fit(train_news['news'],train_news['label'])
+predicted_svm_final = svm_final.predict(test_news['news'])
+np.mean(predicted_svm_final == test_news['label'])
+print(classification_report(test_news['label'], predicted_svm_final))
+
+
+#Logistic regression final model
+logR_pipeline_final = Pipeline([
+        ('LogR_tfidf',TfidfVectorizer(stop_words='english',ngram_range=(1,5),use_idf=True,smooth_idf=False)),
+        ('LogR_clf',LogisticRegression(penalty="l2",C=1))
+        ])
+logR_pipeline_final.fit(train_news['news'],train_news['label'])
+predicted_LogR_final = logR_pipeline_final.predict(test_news['news'])
+np.mean(predicted_LogR_final == test_news['label'])
+print(classification_report(test_news['label'], predicted_LogR_final))
+
+
+#Random forest final model
+random_forest_final = Pipeline([
+        ('rf_tfidf',TfidfVectorizer(stop_words='english',ngram_range=(1,3),use_idf=True,smooth_idf=True)),
+        ('rf_clf',RandomForestClassifier(n_estimators=300,n_jobs=3,max_depth=10))
+        ])    
+random_forest_final.fit(train_news['news'],train_news['label'])
+predicted_rf_final = random_forest_final.predict(test_news['news'])
+np.mean(predicted_rf_final == test_news['label'])
+print(classification_report(test_news['label'], predicted_rf_final))
