@@ -1,0 +1,55 @@
+#Naive Bayes
+nb_pipeline_ngram = Pipeline([
+        ('nb_tfidf',tfidf_ngram),
+        ('nb_clf',MultinomialNB())])
+
+nb_pipeline_ngram.fit(train_news['news'],train_news['label'])
+predicted_nb_ngram = nb_pipeline_ngram.predict(test_news['news'])
+np.mean(predicted_nb_ngram ==test_news['label'])
+
+
+#Logistic Regression
+logR_pipeline_ngram = Pipeline([
+        ('LogR_tfidf',tfidf_ngram),
+        ('LogR_clf',LogisticRegression(penalty="l2",C=1))
+        ])
+
+logR_pipeline_ngram.fit(train_news['news'],train_news['label'])
+predicted_LogR_ngram = logR_pipeline_ngram.predict(test_news['news'])
+np.mean(predicted_LogR_ngram == test_news['label'])
+
+
+#Scalar Vector Machine
+svm_pipeline_ngram = Pipeline([
+        ('svm_tfidf',tfidf_ngram),
+        ('svm_clf',svm.LinearSVC())
+        ])
+
+svm_pipeline_ngram.fit(train_news['news'],train_news['label'])
+predicted_svm_ngram = svm_pipeline_ngram.predict(test_news['news'])
+np.mean(predicted_svm_ngram == test_news['label'])
+
+
+#Random Forest
+random_forest_ngram = Pipeline([
+        ('rf_tfidf',tfidf_ngram),
+        ('rf_clf',RandomForestClassifier(n_estimators=300))
+        ])
+    
+random_forest_ngram.fit(train_news['news'],train_news['label'])
+predicted_rf_ngram = random_forest_ngram.predict(test_news['news'])
+np.mean(predicted_rf_ngram == test_news['label'])
+
+
+build_confusion_matrix(nb_pipeline_ngram)
+build_confusion_matrix(logR_pipeline_ngram)
+build_confusion_matrix(svm_pipeline_ngram)
+build_confusion_matrix(random_forest_ngram)
+
+
+#To visualize classification report
+print(classification_report(test_news['label'], predicted_nb_ngram))
+print(classification_report(test_news['label'], predicted_LogR_ngram))
+print(classification_report(test_news['label'], predicted_svm_ngram))
+print(classification_report(test_news['label'], predicted_rf_ngram))
+
