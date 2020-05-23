@@ -27,11 +27,13 @@ The labels have been reduced to 2 classes as for multi label classification ( wi
 
 I have used [Google colaboratory](https://colab.research.google.com/) for designing this project of *News Detection System* using Natural Language Processing (NLP). If you want to create the same project either import one-by-one each file in order to it's next file or copy the whole code in one colab sheet and run.
 
+
 For training models I considered these options-
 - Naive Bayes
 - Logistic Regression
 - Support Vector Machine
 - Random Forest
+
 
 Techniques used are -
 - **BOW** ( Bag of words )
@@ -39,7 +41,8 @@ Techniques used are -
 - **POS** ( Parts of speech )
 - **TF-IDF** ( Term frequency - Inverse document frequency )
 
-For plots, I plotted 2 kinds of plot - 
+
+For visualization, apart from WordClouds I plotted 2 kinds of plot - 
 - Learning Curve
 - Precision-Recall Curve (PR - curve)
 For balanced dataset it is better to use ROC curve but for moderately or highly imbalanced dataset it is better to use PR curves and thus I have used PR curve for visualization. 
