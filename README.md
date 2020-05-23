@@ -44,7 +44,7 @@ Techniques used are -
 
 For visualization, apart from WordClouds I plotted 2 kinds of plot - 
 - Learning Curve
-- Precision-Recall Curve (PR - curve)
+- Precision-Recall Curve (PR - curve) <br/>
 For balanced dataset it is better to use ROC curve but for moderately or highly imbalanced dataset it is better to use PR curves and thus I have used PR curve for visualization. 
 
 
