@@ -1,0 +1,9 @@
+def detecting_fake_news(var):
+    prediction = logR_pipeline_ngram.predict([var])
+    prob = logR_pipeline_ngram.predict_proba([var])
+    print("This news entered is ",prediction, " with probability ",prob))
+    
+
+#Put any news related to 2012-2017 USA politics to check whether the enetered news is Real or Fake
+
+detecting_fake_news('Donald John Trump is president of USA.')    
