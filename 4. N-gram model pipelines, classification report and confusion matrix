@@ -19,7 +19,7 @@ predicted_LogR_ngram = logR_pipeline_ngram.predict(test_news['news'])
 np.mean(predicted_LogR_ngram == test_news['label'])
 
 
-#Scalar Vector Machine
+#Support Vector Machine
 svm_pipeline_ngram = Pipeline([
         ('svm_tfidf',tfidf_ngram),
         ('svm_clf',svm.LinearSVC())
@@ -48,6 +48,7 @@ build_confusion_matrix(random_forest_ngram)
 
 
 #To visualize classification report
+
 print(classification_report(test_news['label'], predicted_nb_ngram))
 print(classification_report(test_news['label'], predicted_LogR_ngram))
 print(classification_report(test_news['label'], predicted_svm_ngram))
