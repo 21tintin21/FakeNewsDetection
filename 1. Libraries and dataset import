@@ -1,0 +1,101 @@
+import numpy as np
+import pandas as pd
+import pickle
+import torch
+import os
+import warnings
+
+import matplotlib.pyplot as plt
+import seaborn as sb
+from wordcloud import STOPWORDS, WordCloud
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.pipeline import Pipeline
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.linear_model import  LogisticRegression
+from sklearn.linear_model import SGDClassifier
+from sklearn import svm
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import KFold
+from sklearn.metrics import confusion_matrix, f1_score, classification_report
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import learning_curve
+from sklearn.metrics import average_precision_score
+from sklearn.preprocessing import label_binarize
+from sklearn.metrics import precision_recall_curve
+from sklearn.metrics import plot_precision_recall_curve
+from sklearn.datasets import make_classification
+from sklearn.model_selection import train_test_split
+from matplotlib import pyplot
+import nltk
+nltk.download('treebank')
+import nltk.corpus 
+from nltk.tokenize import word_tokenize
+from gensim.models.word2vec import Word2Vec
+
+from google.colab import files
+
+#now choose your dataset files for importing them into google colab
+uploaded = files.upload()
+#Saving valid.csv to valid.csv
+#Saving train.csv to train.csv
+#Saving test.csv to test.csv
+
+
+test_filename = 'test.csv'
+train_filename = 'train.csv'
+valid_filename = 'valid.csv'
+
+#reading dataset files
+train_news = pd.read_csv(train_filename,encoding = "ISO-8859-1",na_values='true',names = ['11', 'label', 'news', '22', '33', '44','55','66','77','88','99','1010','1111','1212'])
+test_news = pd.read_csv(test_filename,encoding = "ISO-8859-1",na_values='true',names = ['11', 'label', 'news', '22', '33', '44','55','66','77','88','99','1010','1111','1212'])
+valid_news = pd.read_csv(valid_filename,encoding = "ISO-8859-1",na_values='true',names = ['11', 'label', 'news', '22', '33', '44','55','66','77','88','99','1010','1111','1212'])
+
+
+#labels_map is used to reduce 6 labels into 2 labels (true & false) for applying binary classification
+#because if 6 labels are used a very big dataset would be required for training the model for better accuracy
+labels_map = {
+        'TRUE': 'true',
+        'mostly-true': 'true',
+        'half-true': 'true',
+        'FALSE': 'false',
+        'barely-true': 'false',
+        'pants-fire': 'false'
+    }
+
+columns_to_select = [1, 2]
+train_news = train_news.iloc[:, columns_to_select]
+train_news.columns = ['label', 'news']
+train_news['label'] = train_news['label'].map(labels_map)
+
+test_news = test_news.iloc[:, columns_to_select]
+test_news.columns = ['label', 'news']
+test_news['label'] = test_news['label'].map(labels_map)
+
+valid_news = valid_news.iloc[:, columns_to_select]
+valid_news.columns = ['label', 'news']
+valid_news['label'] = valid_news['label'].map(labels_map)
+
+
+#function to visualize the count of true and false labels in each data file
+def create_distribution(dataFile):    
+    return sb.countplot(x="label", data=dataFile, palette="hls")
+    
+    
+create_distribution(train_news)
+create_distribution(test_news)
+create_distribution(valid_news)
+
+
+#function to check the quality of the dataset by the number of NAN values
+def data_qualityCheck():    
+
+    print("Checking data qualitites...")    
+    train_news.isnull().sum()
+    train_news.info() 
+    test_news.isnull().sum()
+    test_news.info()
+    valid_news.isnull().sum()
+    valid_news.info()    
+    print("check finished.")
