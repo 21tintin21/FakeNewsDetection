@@ -1,0 +1,65 @@
+#Learning plots visualize the learning of the model over the span of number of training examples
+#Straight upper line represents no learning is taking place and thus we make make our model abit more complex
+
+def plot_learing_curve(pipeline,title):
+    size = 2
+    cv = KFold(size, shuffle=True)
+    
+    X = train_news["news"]
+    y = train_news["label"]
+    
+    pl = pipeline
+    pl.fit(X,y)
+    
+    train_sizes, train_scores, test_scores = learning_curve(pl, X, y, n_jobs=-1, cv=cv, train_sizes=np.linspace(.1, 1.0, 5), verbose=0)
+       
+    train_scores_mean = np.mean(train_scores, axis=1)
+    train_scores_std = np.std(train_scores, axis=1)
+    test_scores_mean = np.mean(test_scores, axis=1)
+    test_scores_std = np.std(test_scores, axis=1)
+     
+    plt.figure()
+    plt.title(title)
+    plt.legend(loc="best")
+    plt.xlabel("Training examples")
+    plt.ylabel("Score")
+    plt.gca().invert_yaxis()
+    
+    plt.grid()
+    
+    plt.fill_between(train_sizes, train_scores_mean - train_scores_std, train_scores_mean + train_scores_std, alpha=0.1, color="r")
+    plt.fill_between(train_sizes, test_scores_mean - test_scores_std, test_scores_mean + test_scores_std, alpha=0.1, color="g")
+    
+    plt.plot(train_sizes, train_scores_mean, 'o-', color="r", label="Training score")
+    plt.plot(train_sizes, test_scores_mean, 'o-', color="g", label="Cross-validation score")
+    
+    plt.ylim(-.1,1.1)
+    plt.show()
+
+
+plot_learing_curve(nb_pipeline_ngram,"Naive-bayes Classifier")
+plot_learing_curve(logR_pipeline_final,"LogisticRegression Classifier")
+plot_learing_curve(svm_pipeline_ngram,"SVM Classifier")
+plot_learing_curve(random_forest_ngram,"RandomForest Classifier")
+
+
+#Also after comparing models and their accuracy final best models were Logistic Regression and Scalar Vector Machine
+#So for further comparision I plotted their Precision-Recall Curve (PR-curve)
+
+def plot_PR_curve(classifier):
+    classifier = logR_pipeline_ngram
+    classifier.fit(train_news['news'], train_news['label'])
+    y_score = classifier.decision_function(test_news['news'])
+    average_precision = average_precision_score(test_news['label'], y_score,pos_label='true')
+
+    print('Average precision-recall score: {0:0.2f}'.format(
+      average_precision))
+
+    disp = plot_precision_recall_curve(classifier, test_news['news'], test_news['label'])
+    disp.ax_.set_title('2-class Precision-Recall curve: ''AP={0:0.2f}'.format(average_precision))
+
+
+plot_PR_curve(predicted_LogR_ngram)
+plot_PR_curve(predicted_svm_ngram)
+
+#According to PR curve Logistic Regression is better model
