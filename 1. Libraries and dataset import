@@ -1,3 +1,6 @@
+#I have used liar liar dataset for news detection which is by far most recognised dataset for the task
+#The project is been prepared on google colaboratory
+
 import numpy as np
 import pandas as pd
 import pickle
