@@ -1,0 +1,165 @@
+#N-gram model is used to predict the conditional probability of the next word
+#now there are various types of N-grams depending on the number of words to be considered in a group
+#such as unigram(1 word), bigram(2 words), trigram(3 words) and so on
+
+def create_unigram(words):
+    assert type(words) == list
+    return words
+
+
+def create_bigrams(words):
+    assert type(words) == list
+    skip = 0
+    join_str = " "
+    Len = len(words)
+    if Len > 1:
+        lst = []
+        for i in range(Len-1):
+            for k in range(1,skip+2):
+                if i+k < Len:
+                    lst.append(join_str.join([words[i],words[i+k]]))
+    else:
+        lst = create_unigram(words)
+    return lst
+    
+
+def create_trigrams(words):
+    assert type(words) == list
+    skip == 0
+    join_str = " "
+    Len = len(words)
+    if L > 2:
+        lst = []
+        for i in range(1,skip+2):
+            for k1 in range(1, skip+2):
+                for k2 in range(1,skip+2):
+                    if i+k1 < Len and i+k1+k2 < Len:
+                        lst.append(join_str.join([words[i], words[i+k1],words[i+k1+k2]]))
+    else:
+        lst = create_bigram(words)
+    return lst
+    
+
+
+#This produces a sparse representation of the counts of the words/pairs
+
+countV = CountVectorizer()
+train_count = countV.fit_transform(train_news['news'].values)
+print(countV)
+print(train_count)
+
+
+#That does feature selection upto some extent then number of features will be equal to the vocabulary size 
+#Can be verified by calling this function
+
+def get_countVectorizer_stats():
+    train_count.shape
+    print(countV.vocabulary_)
+    print(countV.get_feature_names()[:25])
+    
+#TF-IDF refers to term frequency - inverse document frequency
+#TF-IDF transformer and TF-IDF vectorizer aims to do the same thing, to convert a collection of raw document to a matrix of TF-IDF features
+
+tfidfV = TfidfTransformer()
+train_tfidf = tfidfV.fit_transform(train_count)
+
+tfidf_ngram = TfidfVectorizer(stop_words='english',ngram_range=(1,4),use_idf=True,smooth_idf=True)
+tagged_sentences = nltk.corpus.treebank.tagged_sents()
+cutoff = int(.75 * len(tagged_sentences))
+training_sentences = train_news['news'] 
+print(training_sentences)
+
+
+#POS tagging (POS stands for parts of speech)
+#To determine what features tagger should take into consideration when determining what tag to assign to a word 
+
+def features(sentence, index):
+    return {
+        'word': sentence[index],
+        'is_first': index == 0,
+        'is_last': index == len(sentence) - 1,
+        'is_capitalized': sentence[index][0].upper() == sentence[index][0],
+        'is_all_caps': sentence[index].upper() == sentence[index],
+        'is_all_lower': sentence[index].lower() == sentence[index],
+        'prefix-1': sentence[index][0],
+        'prefix-2': sentence[index][:2],
+        'prefix-3': sentence[index][:3],
+        'suffix-1': sentence[index][-1],
+        'suffix-2': sentence[index][-2:],
+        'suffix-3': sentence[index][-3:],
+        'prev_word': '' if index == 0 else sentence[index - 1],
+        'next_word': '' if index == len(sentence) - 1 else sentence[index + 1],
+        'has_hyphen': '-' in sentence[index],
+        'is_numeric': sentence[index].isdigit(),
+        'capitals_inside': sentence[index][1:].lower() != sentence[index][1:]
+    }
+
+
+#Now we need a function to strip tagged words of their tags so that we can put them through tagger
+def untag(tagged_sentence):
+    return [w for w, t in tagged_sentence]
+
+#GloVe stands for Global Vectors for Word Representation
+#GloVe is an unsupervised learning algorithm for obtaining vector representations for words.
+#GloVe model trains on global co-occurrence counts of words and makes a sufficient use of statistics by minimizing least-squares error
+#As a result producing a word vector space with meaningful substructure
+
+#For downloading glove zip file
+!wget http://nlp.stanford.edu/data/glove.6B.zip
+
+#import it into drive and provide the access by entering key the system will provide after running this segment
+from google.colab import drive
+drive.mount('/content/drive')
+import zipfile
+zip_ref = zipfile.ZipFile("glove.6B.zip", 'r')
+zip_ref.extractall('content/drive/')
+zip_ref.close()
+with open("content/drive/glove.6B.50d.txt", "rb") as lines:
+    w2v = {line.split()[0]: np.array(map(float, line.split()[1:]))
+           for line in lines}
+
+
+
+#Word Embeddings are the texts converted into numbers and there may be different numerical representations of the same text
+
+class MeanEmbeddingVectorizer(object):
+    def __init__(self, word2vec):
+        self.word2vec = word2vec
+        self.dim = len(word2vec.itervalues().next())
+
+    def fit(self, X, y):
+        return self
+
+    def transform(self, X):
+        return np.array([
+            np.mean([self.word2vec[w] for w in words if w in self.word2vec]
+                    or [np.zeros(self.dim)], axis=0)
+            for words in X
+        ])
+        
+#word2Vec requires format of list of list for training where every document is contained in a list 
+#where every list contains list of tokens of that document
+
+class TfidfEmbeddingVectorizer(object):
+    def __init__(self, word2vec):
+        self.word2vec = word2vec
+        self.word2weight = None
+        self.dim = len(word2vec.itervalues().next())
+
+    def fit(self, X, y):
+        tfidf = TfidfVectorizer(analyzer=lambda x: x)
+        tfidf.fit(X)
+        max_idf = max(tfidf.idf_)
+        self.word2weight = defaultdict(
+            lambda: max_idf,
+            [(w, tfidf.idf_[i]) for w, i in tfidf.vocabulary_.items()])
+
+        return self
+
+    def transform(self, X):
+        return np.array([
+                np.mean([self.word2vec[w] * self.word2weight[w]
+                         for w in words if w in self.word2vec] or
+                        [np.zeros(self.dim)], axis=0)
+                for words in X
+            ])
