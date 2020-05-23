@@ -19,7 +19,7 @@ logR_pipeline.fit(train_news['news'],train_news['label'])
 predicted_LogR = logR_pipeline.predict(test_news['news'])
 np.mean(predicted_LogR == test_news['label'])
 
-#Saclar Vector Machine
+#Support Vector Machine
 svm_pipeline = Pipeline([
         ('svmCV',countV),
         ('svm_clf',svm.LinearSVC(max_iter=2000))
